@@ -1,7 +1,9 @@
-from typing import Optional, Sequence
+from typing import Optional, Sequence, ByteString, Callable, TypeVar
 
-from .wrappers import Database as _Database, HyperscanError as error
+from .wrappers import Database as _Database, HyperscanError as error, HsMode, HsFlag, HsExprExt
 from .constants import *
+
+T = TypeVar('T')
 
 class Database:
     def __init__(self, mode: HsMode = HsMode.BLOCK) -> None:
@@ -18,7 +20,7 @@ class Database:
     ) -> None:
         if elements not in (-1, len(expressions)):
             raise ValueError
-        self._db = _Database(expressions, ids, flags, ext, mode)
+        self._db = _Database(expressions, ids, flags, ext, self._mode)
 
     def scan(
             self,
@@ -34,10 +36,10 @@ class Database:
         return self._db.scan(data, match_event_handler)
 
 
-def loadb(data: typing.ByteString) -> Database:
+def loadb(data: ByteString) -> Database:
     db = _Database.load(data)
     wrapper = object.__new__(Database)
     wrapper._db = db
 
-def dumpb(db: Database) -> typing.ByteString:
+def dumpb(db: Database) -> ByteString:
     return db._db.dump()
