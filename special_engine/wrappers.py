@@ -1,10 +1,11 @@
-from .capi import HS, HsExprExt, HsMode, HsFlag, HsPlatformInfo, ManagedPtr, hs_database, hs_scratch, HyperscanError
+from .capi import HS, HsApi, HsExprExt, HsMode, HsFlag, HsPlatformInfo, ManagedPtr, hs_database, hs_scratch, HyperscanError
 from typing import Optional, Sequence, ByteString, TypeVar, Callable, List, Generator
 import contextlib
 
 
 class ScratchPool:
-    def __init__(self):
+    def __init__(self, hs: HsApi = HS):
+        self._hs = hs
         self._pool: List[ManagedPtr[hs_scratch]] = []
 
     def _take_or_create_scratch(self, db: ManagedPtr[hs_database]) -> ManagedPtr[hs_scratch]:
@@ -12,7 +13,7 @@ class ScratchPool:
             s = self._pool.pop()
         except IndexError:
             s = None
-        s = HS.alloc_scratch(db, s)
+        s = self._hs.alloc_scratch(db, s)
         return s
 
     def _return_scratch(self, scratch: ManagedPtr[hs_scratch]) -> None:
@@ -36,8 +37,10 @@ class Database:
             flags: Optional[Sequence[HsFlag]] = None,
             ext: Optional[Sequence[HsExprExt]] = None,
             mode: HsMode = HsMode.BLOCK,
+            hs: HsApi = HS,
     ) -> None:
-        self._sp = ScratchPool()
+        self._hs = hs
+        self._sp = ScratchPool(hs)
 
         if ids is None:
             ids = [0] * len(expressions)
@@ -45,7 +48,7 @@ class Database:
             flags = [HsFlag(0)] * len(expressions)
         if ext is None:
             ext = [None] * len(expressions)
-        self._db = HS.compile_ext_multi(
+        self._db = self._hs.compile_ext_multi(
             expressions=expressions,
             ids=ids,
             flags=flags,
@@ -57,10 +60,10 @@ class Database:
     @classmethod
     def load(cls: T, data: ByteString) -> T:
         self = cls()
-        self._db = HS.deserialize_database(data)
+        self._db = self._hs.deserialize_database(data)
 
     def dump(self) -> ByteString:
-        return HS.serialize_database(self._db)
+        return self._hs.serialize_database(self._db)
 
     def scan(
             self,
@@ -76,5 +79,5 @@ class Database:
         else:
             wrap_event_handler = None
         with self._sp.scratch(self._db) as scratch:
-            HS.scan(self._db, scratch, data, wrap_event_handler)
+            self._hs.scan(self._db, scratch, data, wrap_event_handler)
 
