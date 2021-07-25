@@ -66,9 +66,11 @@ class Database:
         return self._hs.database_info(self._db)
 
     @classmethod
-    def load(cls: T, data: ByteString) -> T:
-        self = cls()
-        self._db = self._hs.deserialize_database(data)
+    def load(cls: T, data: ByteString, hs: HsApi = HS) -> T:
+        self = object.__new__(cls)
+        self._hs = hs
+        self._db = hs.deserialize_database(data)
+        return self
 
     def dump(self) -> ByteString:
         return self._hs.serialize_database(self._db)
