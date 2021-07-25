@@ -90,4 +90,3 @@ class Database:
             wrap_event_handler = None
         with self._sp.scratch(self._db) as scratch:
             self._hs.scan(self._db, scratch, data, wrap_event_handler)
-
