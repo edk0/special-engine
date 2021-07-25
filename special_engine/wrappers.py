@@ -57,6 +57,14 @@ class Database:
             platform=HsPlatformInfo(),
         )
 
+    @property
+    def version(self) -> str:
+        return self._hs.version
+
+    @property
+    def info(self) -> str:
+        return self._hs.database_info(self._db)
+
     @classmethod
     def load(cls: T, data: ByteString) -> T:
         self = cls()

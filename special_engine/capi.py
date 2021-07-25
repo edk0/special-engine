@@ -217,6 +217,11 @@ class HsApi:
     def __init__(self, sofile):
         hs = self._hs = C.cdll.LoadLibrary(sofile)
 
+        self.hs_version: Callable[[], str]
+        self.hs_version = hs.hs_version
+        self.hs_version.argtypes = []
+        self.hs_version.restype = C.c_char_p
+
         self.hs_compile: Callable[
             [
                 str,
@@ -361,6 +366,13 @@ class HsApi:
         ]
         self.hs_scan.restype = HsError
 
+    @property
+    def so_name(self) -> str:
+        return self._hs._name
+
+    @property
+    def version(self) -> str:
+        return self.hs_version().decode()
 
     def _check_error(self, code: HsError, error: Optional[Pointer[hs_compile_error]] = None) -> None:
         if code == HsError.SUCCESS:
