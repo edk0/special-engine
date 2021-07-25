@@ -271,29 +271,32 @@ class HsApi:
         ]
         self.hs_compile_ext_multi.restype = HsError
 
-        self.hs_compile_lit = hs.hs_compile_lit
-        self.hs_compile_lit.argtypes = [
-            C.c_char_p,
-            C.c_uint,
-            C.c_uint,
-            C.POINTER(hs_platform_info),
-            C.POINTER(C.POINTER(hs_database)),
-            C.POINTER(C.POINTER(hs_compile_error))
-        ]
-        self.hs_compile_lit.restype = HsError
+        try:
+            self.hs_compile_lit = hs.hs_compile_lit
+            self.hs_compile_lit.argtypes = [
+                C.c_char_p,
+                C.c_uint,
+                C.c_uint,
+                C.POINTER(hs_platform_info),
+                C.POINTER(C.POINTER(hs_database)),
+                C.POINTER(C.POINTER(hs_compile_error))
+            ]
+            self.hs_compile_lit.restype = HsError
 
-        self.hs_compile_lit_multi = hs.hs_compile_lit_multi
-        self.hs_compile_lit_multi.argtypes = [
-            C.POINTER(C.c_char_p),
-            C.POINTER(C.c_uint),
-            C.POINTER(C.c_uint),
-            C.c_uint,
-            C.c_uint,
-            C.POINTER(hs_platform_info),
-            C.POINTER(C.POINTER(hs_database)),
-            C.POINTER(C.POINTER(hs_compile_error)),
-        ]
-        self.hs_compile_lit_multi.restype = HsError
+            self.hs_compile_lit_multi = hs.hs_compile_lit_multi
+            self.hs_compile_lit_multi.argtypes = [
+                C.POINTER(C.c_char_p),
+                C.POINTER(C.c_uint),
+                C.POINTER(C.c_uint),
+                C.c_uint,
+                C.c_uint,
+                C.POINTER(hs_platform_info),
+                C.POINTER(C.POINTER(hs_database)),
+                C.POINTER(C.POINTER(hs_compile_error)),
+            ]
+            self.hs_compile_lit_multi.restype = HsError
+        except AttributeError:
+            pass
 
         self.hs_free_compile_error = hs.hs_free_compile_error
         self.hs_free_compile_error.argtypes = [C.POINTER(hs_compile_error)]
