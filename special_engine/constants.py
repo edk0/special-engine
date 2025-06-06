@@ -10,7 +10,7 @@ def _add_constants(enum, prefix):
         __all__.append(prefix + name)
 
 if __name__ == '__main__':
-    __name__ = 'hyperscan.constants'
+    __name__ = 'special_engine.constants'
     sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
     print('from . import capi')
     def _add_constants(enum, prefix):
@@ -29,6 +29,4 @@ _constants = {
 }
 
 for enum, prefix in _constants.items():
-    for name, value in enum.__members__.items():
-        setattr(_module, prefix + name, value)
-        __all__.append(prefix + name)
+    _add_constants(enum, prefix)
